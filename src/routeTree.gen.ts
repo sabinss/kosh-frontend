@@ -10,13 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as MobilePreviewRouteImport } from './routes/mobile-preview'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedRoleRouteImport } from './routes/_authenticated/role'
+import { Route as AuthSiginInRouteImport } from './routes/auth/sigin-in'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoute = FeaturesRouteImport.update({
@@ -29,6 +37,21 @@ const MobilePreviewRoute = MobilePreviewRouteImport.update({
   path: '/mobile-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedRoleRoute = AuthenticatedRoleRouteImport.update({
+  id: '/role',
+  path: '/role',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthSiginInRoute = AuthSiginInRouteImport.update({
+  id: '/auth/sigin-in',
+  path: '/auth/sigin-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/auth/sign-in',
   path: '/auth/sign-in',
@@ -39,33 +62,68 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/features': typeof FeaturesRoute
   '/mobile-preview': typeof MobilePreviewRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/role': typeof AuthenticatedRoleRoute
+  '/auth/sigin-in': typeof AuthSiginInRoute
   '/auth/sign-in': typeof AuthSignInRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/features': typeof FeaturesRoute
   '/mobile-preview': typeof MobilePreviewRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/role': typeof AuthenticatedRoleRoute
+  '/auth/sigin-in': typeof AuthSiginInRoute
   '/auth/sign-in': typeof AuthSignInRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/features': typeof FeaturesRoute
   '/mobile-preview': typeof MobilePreviewRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/role': typeof AuthenticatedRoleRoute
+  '/auth/sigin-in': typeof AuthSiginInRoute
   '/auth/sign-in': typeof AuthSignInRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/features' | '/mobile-preview' | '/auth/sign-in'
+  fullPaths:
+    | '/'
+    | '/features'
+    | '/mobile-preview'
+    | '/dashboard'
+    | '/role'
+    | '/auth/sigin-in'
+    | '/auth/sign-in'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/features' | '/mobile-preview' | '/auth/sign-in'
-  id: '__root__' | '/' | '/features' | '/mobile-preview' | '/auth/sign-in'
+  to:
+    | '/'
+    | '/features'
+    | '/mobile-preview'
+    | '/dashboard'
+    | '/role'
+    | '/auth/sigin-in'
+    | '/auth/sign-in'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/features'
+    | '/mobile-preview'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/role'
+    | '/auth/sigin-in'
+    | '/auth/sign-in'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   FeaturesRoute: typeof FeaturesRoute
   MobilePreviewRoute: typeof MobilePreviewRoute
+  AuthSiginInRoute: typeof AuthSiginInRoute
   AuthSignInRoute: typeof AuthSignInRoute
 }
 
@@ -76,6 +134,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features': {
@@ -92,6 +157,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MobilePreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/role': {
+      id: '/_authenticated/role'
+      path: '/role'
+      fullPath: '/role'
+      preLoaderRoute: typeof AuthenticatedRoleRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/auth/sigin-in': {
+      id: '/auth/sigin-in'
+      path: '/auth/sigin-in'
+      fullPath: '/auth/sigin-in'
+      preLoaderRoute: typeof AuthSiginInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/sign-in': {
       id: '/auth/sign-in'
       path: '/auth/sign-in'
@@ -102,10 +188,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedRoleRoute: typeof AuthenticatedRoleRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedRoleRoute: AuthenticatedRoleRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   FeaturesRoute: FeaturesRoute,
   MobilePreviewRoute: MobilePreviewRoute,
+  AuthSiginInRoute: AuthSiginInRoute,
   AuthSignInRoute: AuthSignInRoute,
 }
 export const routeTree = rootRouteImport
